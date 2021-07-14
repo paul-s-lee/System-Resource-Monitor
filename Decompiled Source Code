@@ -1,0 +1,152 @@
+// Decompiled with JetBrains decompiler
+// Type: Form_Test.FormTest
+// Assembly: Form Test 3, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: ECF184E9-02AF-4E5C-BF34-D2439E6A89E3
+// Assembly location: C:\Users\paulg\Downloads\CPU-RAM Monitor.exe
+
+using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+
+namespace Form_Test
+{
+  public class FormTest : Form
+  {
+    private PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+    private PerformanceCounter ramCounter = new PerformanceCounter("Memory", "Available MBytes");
+    private long memKb;
+    private long totalMemory;
+    private IContainer components = (IContainer) null;
+    private ProgressBar CpuUsageBar;
+    private Label CpuLabel;
+    private Timer Render;
+    private Label CpuLabel2;
+    private Label MemoryLabel1;
+    private Label MemoryLabel;
+    private ProgressBar MemoryUsageBar;
+    private Label CpuPercent;
+    private Label InMB;
+
+    public FormTest()
+    {
+      this.InitializeComponent();
+      this.Render.Start();
+      this.getAvailableSystemMemory();
+      this.setMaxMemoryBar();
+    }
+
+    [DllImport("kernel32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetPhysicallyInstalledSystemMemory(out long TotalMemoryInKilobytes);
+
+    public void getAvailableSystemMemory()
+    {
+      FormTest.GetPhysicallyInstalledSystemMemory(out this.memKb);
+      this.totalMemory = this.memKb / 1024L / 1024L;
+      this.totalMemory *= 1000L;
+    }
+
+    public void setMaxMemoryBar() => this.MemoryUsageBar.Maximum = Convert.ToInt32(this.totalMemory);
+
+    private void Render_Tick(object sender, EventArgs e)
+    {
+      string str1 = this.cpuCounter.NextValue().ToString();
+      int int32_1 = Convert.ToInt32(Convert.ToDouble(str1));
+      if (int32_1 >= 90)
+        this.CpuUsageBar.ForeColor = Color.Red;
+      this.CpuLabel.Text = str1;
+      this.CpuUsageBar.Value = int32_1;
+      string str2 = this.ramCounter.NextValue().ToString();
+      int int32_2 = Convert.ToInt32(Convert.ToDouble(str2));
+      this.MemoryLabel.Text = str2;
+      this.MemoryUsageBar.Value = int32_2;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing && this.components != null)
+        this.components.Dispose();
+      base.Dispose(disposing);
+    }
+
+    private void InitializeComponent()
+    {
+      this.components = (IContainer) new Container();
+      this.CpuUsageBar = new ProgressBar();
+      this.CpuLabel = new Label();
+      this.Render = new Timer(this.components);
+      this.CpuLabel2 = new Label();
+      this.MemoryLabel1 = new Label();
+      this.MemoryLabel = new Label();
+      this.MemoryUsageBar = new ProgressBar();
+      this.CpuPercent = new Label();
+      this.InMB = new Label();
+      this.SuspendLayout();
+      this.CpuUsageBar.Location = new Point(12, 12);
+      this.CpuUsageBar.Name = "CpuUsageBar";
+      this.CpuUsageBar.Size = new Size(350, 23);
+      this.CpuUsageBar.TabIndex = 0;
+      this.CpuLabel.AutoSize = true;
+      this.CpuLabel.Location = new Point(84, 38);
+      this.CpuLabel.Name = "CpuLabel";
+      this.CpuLabel.Size = new Size(21, 13);
+      this.CpuLabel.TabIndex = 2;
+      this.CpuLabel.Text = "0%";
+      this.Render.Interval = 1000;
+      this.Render.Tick += new EventHandler(this.Render_Tick);
+      this.CpuLabel2.AutoSize = true;
+      this.CpuLabel2.Location = new Point(9, 38);
+      this.CpuLabel2.Name = "CpuLabel2";
+      this.CpuLabel2.Size = new Size(69, 13);
+      this.CpuLabel2.TabIndex = 3;
+      this.CpuLabel2.Text = "CPU Usage: ";
+      this.MemoryLabel1.AutoSize = true;
+      this.MemoryLabel1.Location = new Point(9, 91);
+      this.MemoryLabel1.Name = "MemoryLabel1";
+      this.MemoryLabel1.Size = new Size(72, 13);
+      this.MemoryLabel1.TabIndex = 6;
+      this.MemoryLabel1.Text = "MEM Usage: ";
+      this.MemoryLabel.AutoSize = true;
+      this.MemoryLabel.Location = new Point(84, 91);
+      this.MemoryLabel.Name = "MemoryLabel";
+      this.MemoryLabel.Size = new Size(21, 13);
+      this.MemoryLabel.TabIndex = 5;
+      this.MemoryLabel.Text = "0%";
+      this.MemoryUsageBar.Location = new Point(12, 65);
+      this.MemoryUsageBar.Name = "MemoryUsageBar";
+      this.MemoryUsageBar.Size = new Size(350, 23);
+      this.MemoryUsageBar.TabIndex = 4;
+      this.CpuPercent.AutoSize = true;
+      this.CpuPercent.Location = new Point(347, 38);
+      this.CpuPercent.Name = "CpuPercent";
+      this.CpuPercent.Size = new Size(15, 13);
+      this.CpuPercent.TabIndex = 7;
+      this.CpuPercent.Text = "%";
+      this.InMB.AutoSize = true;
+      this.InMB.Location = new Point(293, 91);
+      this.InMB.Name = "InMB";
+      this.InMB.Size = new Size(69, 13);
+      this.InMB.TabIndex = 8;
+      this.InMB.Text = "MB Available";
+      this.AutoScaleDimensions = new SizeF(6f, 13f);
+      this.AutoScaleMode = AutoScaleMode.Font;
+      this.ClientSize = new Size(374, 115);
+      this.Controls.Add((Control) this.InMB);
+      this.Controls.Add((Control) this.CpuPercent);
+      this.Controls.Add((Control) this.MemoryLabel1);
+      this.Controls.Add((Control) this.MemoryLabel);
+      this.Controls.Add((Control) this.MemoryUsageBar);
+      this.Controls.Add((Control) this.CpuLabel2);
+      this.Controls.Add((Control) this.CpuLabel);
+      this.Controls.Add((Control) this.CpuUsageBar);
+      this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+      this.Name = nameof (FormTest);
+      this.Text = "CPU/RAM Monitor";
+      this.ResumeLayout(false);
+      this.PerformLayout();
+    }
+  }
+}
